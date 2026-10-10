@@ -1,0 +1,863 @@
+﻿<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex,nofollow">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Tool Sala HCM">
+<meta name="theme-color" content="#FAF9F7">
+<script data-iphone="sentinella">
+(function(){
+var h=document.documentElement, msg="";
+function ha(c){ return (" "+h.className+" ").indexOf(" "+c+" ")>=0; }
+// L'errore puo' arrivare prima che l'avviso esista — uno script in <head> che
+// non si lascia leggere —: il messaggio si tiene da parte e si scrive quando
+// la pagina c'e'.
+function scrivi(){
+  var e=document.getElementById("nmerr");
+  if(e&&msg) e.textContent="Errore del motore: "+msg;
+}
+function ko(m){
+  if(m&&!msg) msg=m;
+  if(!ha("motore-ko")) h.className+=" motore-ko";
+  scrivi();
+}
+h.className+=" js";
+window.onerror=function(m,src,riga,col){
+  m=String(m);
+  if(/^Script error\.?$/.test(m)) m="il browser non ne mostra il dettaglio (\u00abScript error.\u00bb)";
+  ko(m+(riga?" (riga "+riga+(col?", colonna "+col:"")+")":""));
+};
+document.addEventListener("DOMContentLoaded",function(){
+  if(!ha("motore-ok")) ko(msg||"il motore non ha completato l'avvio"); else scrivi();
+});
+})();
+</script>
+<title>HCM ostruttiva in sala operatoria — che cosa fare e le dosi</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&family=IBM+Plex+Sans+Condensed:wght@600;700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
+  :root {
+    --bg:#FAF9F7; --surface:#FFFFFF; --surface-alt:#F3F2EF;
+    --border:rgba(11,11,11,0.10); --border-strong:rgba(11,11,11,0.18);
+    --text-primary:#0B0B0B; --text-secondary:#52514E; --text-muted:#76746F;
+    --accent-blue:#2A78D6;   --accent-blue-bg:#E6F1FB;   --accent-blue-border:#B5D4F4;
+    --accent-amber:#BA7517;  --accent-amber-bg:#FAEEDA;  --accent-amber-border:#FAC775;
+    --accent-red:#A32D2D;    --accent-red-bg:#FCEBEB;    --accent-red-border:#F7C1C1;
+    --accent-green:#3B6D11;  --accent-green-bg:#EAF3DE;  --accent-green-border:#C0DD97;
+    --cor-1:#3B8E5A; --cor-2a:#E0A82E; --cor-2b:#DE7E3C; --cor-3:#B33A3A;
+    --k0:#2E7D4F; --k0-bg:#E2F3E8; --k0-bd:#A6D9B8;
+    --k1:#2A78D6; --k1-bg:#E3EFFB; --k1-bd:#A9CBF1;
+    --k2:#8A6A00; --k2-bg:#FBF3C8; --k2-bd:#EBD56C;
+    --k3:#B45309; --k3-bg:#FDEBD8; --k3-bd:#F4BD85;
+    --k4:#A32D2D; --k4-bg:#FCE3E3; --k4-bd:#F0A9A9;
+    --grid:rgba(42,120,214,.08);
+    --font:'IBM Plex Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+    --display:'IBM Plex Sans Condensed','Arial Narrow',-apple-system,'Segoe UI',sans-serif;
+    --mono:'IBM Plex Mono',ui-monospace,Consolas,'Courier New',monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg:#111418; --surface:#181C22; --surface-alt:#20252D;
+      --border:rgba(255,255,255,.10); --border-strong:rgba(255,255,255,.19);
+      --text-primary:#E7EAEE; --text-secondary:#B8BEC7; --text-muted:#949BA5;
+      --accent-blue:#72AAEE;   --accent-blue-bg:#18283A;   --accent-blue-border:#2E4B6C;
+      --accent-amber:#E3A94F;  --accent-amber-bg:#30250F;  --accent-amber-border:#5D4719;
+      --accent-red:#EF8E8E;    --accent-red-bg:#361B1B;    --accent-red-border:#6B3232;
+      --accent-green:#95C873;  --accent-green-bg:#1C2A13;  --accent-green-border:#3C5626;
+      --k0:#8FD3A8; --k0-bg:#132B1D; --k0-bd:#2D5A3E;
+      --k1:#8EC0F5; --k1-bg:#16283C; --k1-bd:#2F5378;
+      --k2:#EDD36A; --k2-bg:#2C260C; --k2-bd:#5E5120;
+      --k3:#F3B27A; --k3-bg:#33210F; --k3-bd:#6B4524;
+      --k4:#F29A9A; --k4-bg:#361B1B; --k4-bd:#6B3232;
+      --grid:rgba(114,170,238,.07);
+      color-scheme:dark;
+    }
+  }
+  body { font-family:var(--font); background:var(--bg); color:var(--text-primary); font-size:14.5px; line-height:1.65; -webkit-font-smoothing:antialiased; }
+  .page { max-width:960px; margin:0 auto; padding:0 16px 4rem; }
+  strong, b { font-weight:600; }
+  .muted { color:var(--text-muted); }
+  .hero { margin:0 -16px 0; padding:2.2rem 16px 1.3rem; border-bottom:1px solid var(--border);
+          background-color:var(--bg);
+          background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);
+          background-size:22px 22px; }
+  .kicker { font-family:var(--mono); font-size:11px; font-weight:600; letter-spacing:.08em; text-transform:uppercase; color:var(--accent-blue); margin-bottom:8px; }
+  .headline { font-family:var(--display); font-size:30px; font-weight:700; line-height:1.12; margin-bottom:10px; }
+  .lede { font-size:14.5px; color:var(--text-secondary); max-width:760px; margin-bottom:12px; }
+  .lede strong { color:var(--text-primary); }
+  .meta-row { display:flex; flex-wrap:wrap; gap:6px 8px; font-size:12px; }
+  .meta-chip { background:var(--surface); border:1px solid var(--border-strong); border-radius:99px; padding:2px 10px; color:var(--text-secondary); overflow-wrap:anywhere; }
+  .meta-chip strong { color:var(--text-primary); }
+  .bar { position:-webkit-sticky;position:sticky; top:0; z-index:30; background:var(--bg); border-bottom:1px solid var(--border-strong);
+         margin:0 -16px 1.2rem; padding:8px 16px; display:flex; flex-wrap:wrap; align-items:center; gap:6px 10px; }
+  .bar .lbl { font-family:var(--mono); font-size:10.5px; font-weight:600; letter-spacing:.06em; text-transform:uppercase; color:var(--text-muted); }
+  .bar .sp { flex:1 1 auto; }
+  .btn { font:600 12.5px var(--font); padding:6px 13px; border-radius:99px; border:1px solid var(--border-strong); background:var(--surface); color:var(--text-secondary); cursor:pointer; }
+  .btn:hover { border-color:var(--accent-blue); color:var(--accent-blue); }
+  .stage { display:flex; align-items:baseline; gap:10px; margin:2rem 0 .7rem; padding-bottom:6px; border-bottom:2px solid var(--border-strong); }
+  .stage-n { font-family:var(--mono); font-size:12px; font-weight:600; color:#FFFFFF; background:var(--accent-blue); border-radius:6px; padding:1px 7px; }
+  .stage-t { font-family:var(--display); font-size:20px; font-weight:700; line-height:1.2; }
+  .stage-w { margin-left:auto; font-size:11.5px; color:var(--text-muted); text-align:right; }
+  .card { background:var(--surface); border:1px solid var(--border-strong); border-radius:12px; padding:14px 16px; margin-bottom:12px; }
+  .card h3 { font-size:13px; font-weight:600; letter-spacing:.02em; margin-bottom:8px; color:var(--text-secondary); }
+  .card h3.sep { margin-top:12px; padding-top:10px; border-top:1px solid var(--border-strong); }
+  .fl { font-size:12.5px; font-weight:600; color:var(--text-secondary); min-width:150px; }
+  .fl small { display:block; font-weight:400; color:var(--text-muted); font-size:11.5px; }
+  input[type=number] { font:500 15px var(--font); color:var(--text-primary); background:var(--surface); border:1px solid var(--border-strong); border-radius:8px; padding:6px 9px; width:92px; text-align:center; }
+  .seg { display:inline-flex; flex-wrap:wrap; border:1px solid var(--border-strong); border-radius:10px; overflow:hidden; max-width:100%; }
+  .seg label { position:relative; cursor:pointer; }
+  .seg input { position:absolute; opacity:0; width:1px; height:1px; }
+  .seg span { display:block; padding:6px 12px; font-size:13.5px; font-weight:500; color:var(--text-secondary); border-right:1px solid var(--border); }
+  .seg label:last-child span { border-right:none; }
+  .seg input:checked + span { background:var(--text-primary); color:var(--bg); }
+  .seg input:focus-visible + span { outline:2px solid var(--accent-blue); outline-offset:-2px; }
+  .chk { display:flex; align-items:flex-start; gap:9px; padding:6px 0; font-size:14px; line-height:1.45; border-bottom:1px dashed var(--border); cursor:pointer; }
+  .chk:last-child { border-bottom:none; }
+  .chk input { margin-top:3px; width:17px; height:17px; flex:0 0 auto; accent-color:var(--accent-blue); }
+  .chk small { display:block; color:var(--text-muted); font-size:12px; }
+  .chk .tx { flex:1 1 auto; min-width:0; }
+  .chk.on .tx { color:var(--text-primary); font-weight:500; }
+  .chk.conf { margin-top:6px; border-top:1px solid var(--border-strong); padding-top:9px; }
+  .riga { display:flex; flex-wrap:wrap; align-items:center; gap:6px 12px; padding:6px 0; border-bottom:1px dashed var(--border); }
+  .riga:last-child { border-bottom:none; }
+  .riga .fl { min-width:0; flex:1 1 180px; }
+  .hide { display:none !important; }
+  .esito { display:flex; flex-wrap:wrap; align-items:center; gap:10px 14px; margin-bottom:4px; }
+  .cat { display:inline-block; font-size:12.5px; font-weight:600; border-radius:99px; padding:2px 10px; border:1px solid; }
+  .k0 { color:var(--k0); background:var(--k0-bg); border-color:var(--k0-bd); }
+  .k1 { color:var(--k1); background:var(--k1-bg); border-color:var(--k1-bd); }
+  .k2 { color:var(--k2); background:var(--k2-bg); border-color:var(--k2-bd); }
+  .k3 { color:var(--k3); background:var(--k3-bg); border-color:var(--k3-bd); }
+  .k4 { color:var(--k4); background:var(--k4-bg); border-color:var(--k4-bd); }
+  .kx { color:var(--text-muted); background:var(--surface-alt); border-color:var(--border-strong); }
+  .big { font-family:var(--display); font-size:24px; font-weight:700; line-height:1.15; }
+  .cor { display:inline-block; font-family:var(--mono); font-size:11px; font-weight:600; color:#FFFFFF; border-radius:4px; padding:0 5px; margin:0 1px; white-space:nowrap; vertical-align:1px; }
+  .c1 { background:var(--cor-1); } .c2a { background:var(--cor-2a); color:#1D1602; } .c2b { background:var(--cor-2b); } .c3 { background:var(--cor-3); }
+  .pg { font-family:var(--mono); font-size:11px; color:var(--text-muted); }
+  .nota { border-left:3px solid var(--accent-amber); background:var(--accent-amber-bg); border-radius:0 8px 8px 0; padding:7px 11px; margin-top:8px; font-size:13.5px; }
+  .nota.info { border-left-color:var(--accent-blue); background:var(--accent-blue-bg); }
+  .nota.stop { border-left-color:var(--accent-red); background:var(--accent-red-bg); }
+  .nota.ok { border-left-color:var(--accent-green); background:var(--accent-green-bg); }
+  .nota.spenta { border-left-color:var(--border-strong); background:var(--surface-alt); color:var(--text-secondary); }
+  .nota strong { color:var(--text-primary); }
+  .ed { border:1px solid var(--border-strong); border-radius:10px; padding:10px 12px; margin-top:10px; }
+  .ed.prev { border-color:var(--accent-blue-border); background:var(--accent-blue-bg); }
+  .ed .edt { font-family:var(--mono); font-size:10.5px; font-weight:600; letter-spacing:.06em; text-transform:uppercase; color:var(--text-muted); margin-bottom:4px; }
+  .ed.prev .edt { color:var(--accent-blue); }
+  .ed .tx { font-size:13.5px; overflow-wrap:anywhere; }
+  .passo { display:flex; gap:10px; padding:8px 0; border-bottom:1px dashed var(--border); }
+  .passo:last-child { border-bottom:none; }
+  .passo .ico { flex:0 0 26px; font-weight:700; text-align:center; font-family:var(--mono); font-size:13px; padding-top:1px; }
+  .passo .tx { flex:1 1 auto; font-size:14px; min-width:0; overflow-wrap:anywhere; }
+  .passo.att { background:var(--accent-blue-bg); border-radius:8px; border-bottom-color:transparent; padding:8px 8px; margin:2px -8px; }
+  .passo.att .ico { color:var(--accent-blue); }
+  .lista li { margin:4px 0 4px 18px; font-size:13.5px; }
+  .tab { width:100%; border-collapse:collapse; font-size:13px; margin-top:4px; }
+  .tab th, .tab td { text-align:left; padding:5px 6px; border-bottom:1px solid var(--border); vertical-align:top; }
+  .tab th { font-size:11.5px; font-weight:600; color:var(--text-muted); text-transform:uppercase; letter-spacing:.04em; }
+  .tab td.n { font-family:var(--mono); white-space:nowrap; text-align:right; }
+  .vv { font-family:var(--mono); font-size:12px; color:var(--text-muted); }
+  .url { font-family:var(--mono); font-size:12px; overflow-wrap:anywhere; }
+  .foot { margin-top:2.4rem; padding-top:1rem; border-top:1px solid var(--border-strong); font-size:12px; color:var(--text-muted); line-height:1.7; }
+  .foot strong { color:var(--text-secondary); }
+  .dose { border:1px solid var(--border-strong); border-radius:10px; padding:10px 12px; margin-top:10px; }
+  .dose.att { border-color:var(--accent-blue-border); background:var(--accent-blue-bg); }
+  .dose.no { opacity:.72; }
+  .dose .dn { font-family:var(--display); font-weight:700; font-size:17px; line-height:1.2; }
+  .dose .dp { font-size:12px; color:var(--text-muted); margin-bottom:4px; overflow-wrap:anywhere; }
+  .dose .dr { display:flex; flex-wrap:wrap; gap:2px 10px; padding:5px 0; border-bottom:1px dashed var(--border); font-size:13.5px; }
+  .dose .dr:last-child { border-bottom:none; }
+  .dose .dl { flex:0 0 118px; font-family:var(--mono); font-size:10.5px; font-weight:600; text-transform:uppercase; letter-spacing:.04em; color:var(--text-muted); padding-top:3px; }
+  .dose .dx { flex:1 1 200px; min-width:0; overflow-wrap:anywhere; }
+  .prov { display:inline-block; font-family:var(--mono); font-size:10px; font-weight:600; letter-spacing:.03em; border-radius:4px; padding:0 5px; white-space:nowrap; border:1px solid; vertical-align:1px; }
+  .prov-rcp { color:var(--accent-amber); background:var(--accent-amber-bg); border-color:var(--accent-amber-border); }
+  .prov-fonte { color:var(--accent-green); background:var(--accent-green-bg); border-color:var(--accent-green-border); }
+  .prov-sintesi { color:var(--accent-blue); background:var(--accent-blue-bg); border-color:var(--accent-blue-border); }
+  .dv { font-family:var(--mono); font-size:10px; font-weight:600; letter-spacing:.03em; color:var(--accent-red); background:var(--accent-red-bg); border:1px solid var(--accent-red-border); border-radius:4px; padding:0 5px; white-space:nowrap; }
+  input[type=number].w2 { width:110px; }
+  @media (max-width:640px) {
+    .dose .dl { flex-basis:100%; }
+    .headline { font-size:25px; }
+    .stage-w { display:none; }
+    .fl { min-width:0; width:100%; }
+    .big { font-size:21px; }
+    .tab { font-size:12px; }
+  }
+  @media print { .bar { position:static; } }
+</style>
+<style data-iphone="stile">
+/* L'avviso e' visibile per costruzione: lo nasconde solo la classe che la
+   sentinella mette quando JavaScript esiste, e lo rimostra quando il motore
+   muore. Nell'anteprima dell'iPhone nessuna delle due arriva. */
+#nomotore{background:#FCEBEB;border:1.5px solid #A32D2D;border-radius:10px;
+ padding:12px 15px;margin:0 0 1.1rem;font-size:13.5px;line-height:1.6;color:#0B0B0B;
+ font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif}
+#nomotore strong{display:block;color:#A32D2D;font-size:15px;margin-bottom:4px}
+#nomotore p{margin:6px 0 0}
+#nomotore a{color:#A32D2D}
+#nomotore .nmurl{font-family:'SFMono-Regular',Consolas,Menlo,monospace;font-size:.92em;word-break:break-all}
+#nomotore .nmerr{display:block;font-family:'SFMono-Regular',Consolas,Menlo,monospace;
+ font-size:11.5px;color:#A32D2D;margin-top:6px;word-break:break-word}
+#nomotore .nmerr:empty{display:none}
+html.js #nomotore{display:none}
+html.js.motore-ko #nomotore{display:block}
+
+#nmprivacy{background:#E2F4F5;border:1px solid #A7DBDE;border-radius:8px;padding:9px 13px;
+ margin:0 0 1rem;font-size:12.5px;line-height:1.55;color:#0B0B0B;
+ font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif}
+@media print{#nmprivacy{display:none}}
+</style>
+</head>
+<body>
+<div class="nomotore" id="nomotore" role="alert">
+ <strong>Motore di calcolo non attivo</strong>
+ <p>I calcoli, i filtri e i comandi di questa pagina <b>non funzionano</b>: dove leggi «—» non c'è un
+ valore. Il testo resta leggibile, i numeri che dipendono dai tuoi dati no. Non usare questa pagina
+ per decidere una dose.</p>
+ <p>Su iPhone e iPad succede sempre con un file salvato sul telefono: si apre nell'<b>anteprima</b> —
+ dall'app File, da Mail, da WhatsApp —, che mostra la pagina ma non esegue il motore, e Apple non
+ permette di aprirlo in Safari. Sull'iPhone il tool funziona aperto da questo indirizzo, in Safari: <a class="nmurl" href="https://francescofugetto-ai.github.io/tool-sala-hcm-web/">https://francescofugetto-ai.github.io/tool-sala-hcm-web/</a> — poi Condividi, «Aggiungi alla schermata Home». Dopo la prima apertura funziona anche senza rete. Su computer e Android basta aprire il file.</p>
+ <span class="nmerr" id="nmerr"></span>
+</div>
+<div class="nmprivacy" id="nmprivacy">
+ <b>Quello che scrivi resta su questo dispositivo.</b> La pagina non invia niente in rete e non
+ salva niente: nessun dato esce da qui. Per la stessa ragione, <b>chiudendola il contenuto si
+ perde</b> — copia il referto dove ti serve prima di chiudere.
+</div>
+<div class="page">
+<header class="hero">
+  <div class="kicker">Strumento · Cardiomiopatie · ESC 2023 e il suo supplementare (Tab. S7)</div>
+  <h1 class="headline">HCM ostruttiva in sala operatoria — che cosa fare, che cosa evitare, e le dosi</h1>
+  <p class="lede"><strong>Come si usa.</strong> Il passo 1 dice chi va in sala e se c'è un'<strong>ostruzione del tratto di efflusso</strong>: la Tab. S7 della ESC 2023 vale per la HCM ostruttiva. Il passo 2 porta le righe della <strong>Rec. Table 33</strong> prima dell'intervento. Il passo 3 dà gli obiettivi in sala e che cosa evitare. Il passo 4 dice che cosa fare se compaiono <strong>ipotensione</strong>, <strong>ostruzione</strong> o <strong>FA rapida</strong>. I passi 5 e 6 danno le dosi di <strong>fenilefrina, vasopressina, esmololo e metoprololo e.v.</strong>: la linea guida non ne dà, vengono dalle <strong>schede tecniche</strong> italiane, con il rene (Cockcroft-Gault sul peso reale) e con l'indicazione dichiarata — tre su quattro, qui, sono <strong>fuori indicazione</strong>. <strong>Azzera</strong>, in alto, ricomincia.</p>
+  <div class="meta-row">
+    <span class="meta-chip"><strong>Fonte</strong> 2023 ESC Guidelines for the management of cardiomyopathies, con i Supplementary data</span>
+    <span class="meta-chip"><strong>Raccomandazioni</strong> Rec. Table 33, p. 3585 · Tab. S7, Suppl. p. 16 · Rec. Table 18, p. 3553 · Rec. Table 19, p. 3554</span>
+    <span class="meta-chip"><strong>Dosi</strong> schede tecniche AIFA: Fenilefrina Aguettant, Empressin, Brevibloc ed Esmololo Hikma, Seloken</span>
+  </div>
+</header>
+
+<div class="bar" id="bar" aria-live="polite">
+  <span class="lbl">Ostruzione</span> <span id="barOstr" class="cat kx">—</span>
+  <span class="lbl">Clearance</span> <span id="barRene" class="cat kx">—</span>
+  <span class="lbl">In sala</span> <span id="barEv" class="cat kx">—</span>
+  <span class="sp"></span>
+  <button class="btn" id="azzera" type="button">Azzera</button>
+</div>
+
+<div class="stage"><span class="stage-n">1</span><span class="stage-t">Chi va in sala</span><span class="stage-w">ESC 2023, p. 3585 · Suppl., Tab. S7, p. 16</span></div>
+<div class="card">
+  <div class="riga"><span class="fl">Chi è</span>
+    <span class="seg">
+      <label><input type="radio" name="chi" value="hcm"><span>paziente con HCM</span></label>
+      <label><input type="radio" name="chi" value="parente"><span>parente di primo grado di un paziente con cardiomiopatia, senza diagnosi</span></label>
+    </span></div>
+  <div class="riga" id="rigaOstr"><span class="fl">Ostruzione del tratto di efflusso<small>a riposo o provocata con le manovre</small></span>
+    <span class="seg">
+      <label><input type="radio" name="ostr" value="si"><span>sì, a riposo o provocabile</span></label>
+      <label><input type="radio" name="ostr" value="no"><span>no, nemmeno con le manovre</span></label>
+      <label><input type="radio" name="ostr" value="nv"><span>non valutata</span></label>
+    </span></div>
+  <div class="riga"><span class="fl">Età<small>anni</small></span><input type="number" id="eta" min="0" max="120" step="1" inputmode="numeric" placeholder="anni"><span class="vv" id="vEta">—</span></div>
+  <label class="chk" id="rigaGrav"><input type="checkbox" id="grav"><span class="tx">In gravidanza o al parto</span></label>
+  <div id="outChi"></div>
+</div>
+
+<div class="stage" id="stage2"><span class="stage-n">2</span><span class="stage-t">Prima dell'intervento</span><span class="stage-w">ESC 2023, Rec. Table 33, p. 3585</span></div>
+<div class="card" id="card2">
+  <div class="riga"><span class="fl">Scompenso sospetto o noto</span>
+    <span class="seg">
+      <label><input type="radio" name="scomp" value="si"><span>sì</span></label>
+      <label><input type="radio" name="scomp" value="no"><span>no</span></label>
+    </span></div>
+  <div class="riga"><span class="fl">Rischio dell'intervento<small>secondo le linee guida ESC sulla chirurgia non cardiaca</small></span>
+    <span class="seg">
+      <label><input type="radio" name="rischio" value="basso"><span>basso</span></label>
+      <label><input type="radio" name="rischio" value="alto"><span>intermedio o alto</span></label>
+    </span></div>
+  <div class="riga"><span class="fl">Eco (con il gradiente) e NT-proBNP o BNP recenti</span>
+    <span class="seg">
+      <label><input type="radio" name="recenti" value="si"><span>sì</span></label>
+      <label><input type="radio" name="recenti" value="no"><span>no</span></label>
+    </span></div>
+  <div class="riga"><span class="fl">Intervento</span>
+    <span class="seg">
+      <label><input type="radio" name="elett" value="si"><span>elettivo</span></label>
+      <label><input type="radio" name="elett" value="no"><span>urgente</span></label>
+    </span></div>
+  <label class="chk"><input type="checkbox" id="altoRischio"><span class="tx">Genotipo ad alto rischio, fattori di complicanze aritmiche o di scompenso, oppure ostruzione severa<small>la Rec. Table 33 non dà una soglia per «severa»</small></span></label>
+  <h3 class="sep">Terapia in corso per l'ostruzione</h3>
+  <label class="chk"><input type="checkbox" id="t_bb"><span class="tx">Betabloccante</span></label>
+  <label class="chk"><input type="checkbox" id="t_cca"><span class="tx">Verapamil o diltiazem</span></label>
+  <label class="chk"><input type="checkbox" id="t_diso"><span class="tx">Disopiramide</span></label>
+  <label class="chk"><input type="checkbox" id="t_mio"><span class="tx">Inibitore della miosina<small>mavacamten, aficamten</small></span></label>
+  <div id="outPrima" style="margin-top:8px"></div>
+</div>
+
+<div class="stage" id="stage3"><span class="stage-n">3</span><span class="stage-t">In sala: gli obiettivi e che cosa evitare</span><span class="stage-w">Suppl., Tab. S7, p. 16 · Rec. Table 18, p. 3553</span></div>
+<div class="card" id="outSala"></div>
+
+<div class="stage" id="stage4"><span class="stage-n">4</span><span class="stage-t">Se in sala compare…</span><span class="stage-w">Suppl., Tab. S7, p. 16 · Rec. Table 19, p. 3554</span></div>
+<div class="card" id="card4">
+  <label class="chk"><input type="checkbox" id="ev_ipo"><span class="tx">Ipotensione</span></label>
+  <label class="chk"><input type="checkbox" id="ev_ostr"><span class="tx">Ostruzione, o il suo peggioramento</span></label>
+  <label class="chk"><input type="checkbox" id="ev_fa"><span class="tx">FA ad alta frequenza</span></label>
+  <div class="riga" id="rigaFa"><span class="fl">Con la FA rapida, l'emodinamica è</span>
+    <span class="seg">
+      <label><input type="radio" name="fa" value="stabile"><span>stabile</span></label>
+      <label><input type="radio" name="fa" value="instabile"><span>instabile</span></label>
+    </span></div>
+  <div id="outEventi" style="margin-top:8px"></div>
+</div>
+
+<div class="stage" id="stage5"><span class="stage-n">5</span><span class="stage-t">Il paziente e il rene</span><span class="stage-w">schede tecniche, 4.2 · Cockcroft-Gault sul peso reale</span></div>
+<div class="card" id="card5">
+  <div class="riga"><span class="fl">Sesso</span>
+    <span class="seg">
+      <label><input type="radio" name="sesso" value="m"><span>uomo</span></label>
+      <label><input type="radio" name="sesso" value="f"><span>donna</span></label>
+    </span></div>
+  <div class="riga"><span class="fl">Peso<small>kg · le dosi per kg usano il peso reale</small></span><input type="number" id="peso" min="25" max="250" step="0.5" inputmode="decimal" placeholder="kg"></div>
+  <div class="riga"><span class="fl">Altezza<small>cm · serve al BMI: dai 30 accanto alla clearance sul peso reale compare quella sul peso aggiustato</small></span><input type="number" id="alt" min="120" max="220" step="1" inputmode="numeric" placeholder="cm"></div>
+  <div class="riga"><span class="fl">Creatinina</span><input type="number" id="creat" min="0.1" max="2000" step="0.01" inputmode="decimal" placeholder="—">
+    <span class="seg">
+      <label><input type="radio" name="uc" value="mg" checked><span>mg/dL</span></label>
+      <label><input type="radio" name="uc" value="umol"><span>µmol/L</span></label>
+    </span></div>
+  <label class="chk"><input type="checkbox" id="dialisi"><span class="tx">In emodialisi</span></label>
+  <div id="outRene" style="margin-top:8px"></div>
+</div>
+
+<div class="stage" id="stage6"><span class="stage-n">6</span><span class="stage-t">I farmaci della Tab. S7, con dose e rene</span><span class="stage-w">schede tecniche AIFA · la linea guida non dà dosi</span></div>
+<div class="card" id="outDosi"></div>
+
+<div class="card"><h3>Confronto con la AHA/ACC 2024</h3><div id="outConf"></div></div>
+<div class="card"><h3>Incoerenze della fonte e contrasti con le schede tecniche</h3><div id="outInc"></div></div>
+<div class="card"><h3>Limiti per questo paziente</h3><ul class="lista" id="limiti"></ul></div>
+
+<div class="foot">
+  <strong>Fonti.</strong> Arbelo E, Protonotarios A, Gimeno JR, et al. 2023 ESC Guidelines for the management of cardiomyopathies. <em>Eur Heart J</em> 2023;44:3503–3626, doi:10.1093/eurheartj/ehad194 — chirurgia non cardiaca (p. 3585, Rec. Table 33), ostruzione (Rec. Table 16, p. 3549; Rec. Table 18, p. 3553; Rec. Table 19, p. 3554), FA nella HCM (Rec. Table 11, p. 3543), gravidanza e anestesia (p. 3584); Supplementary data, Tab. S7 (p. 16), adattata dagli autori da tre lavori di anestesia. A confronto: 2024 AHA/ACC Guideline for the management of hypertrophic cardiomyopathy, pp. e1271 e e1286, nel suo sistema di classi.<br>
+  <strong>Schede tecniche</strong> (Banca dati farmaci AIFA): Fenilefrina Aguettant 50 µg/mL, siringa da 10 mL (Laboratoire Aguettant), reso disponibile il 31/01/2021, letta l'08/10/2026 · Empressin 40 UI/2 mL, 20 UI/mL (Orpha-Devel), reso disponibile l'08/03/2019, letta il 09/10/2026 · Brevibloc 100 mg/10 mL e 10 mg/mL (Baxter), reso disponibile il 16/06/2026, ed Esmololo cloridrato Hikma 10 mg/mL, 02/06/2017, lette il 03/10/2026 · Seloken 1 mg/mL e.v. (Recordati), reso disponibile il 28/08/2026, letta il 03/10/2026 · per gli inibitori della miosina Camzyos (EMA, 02/06/2025) e Myqorzo (EMA, 01/09/2026). Le dosi sono quelle del prontuario del capitolo, gruppi 2 e 11, che le prende da queste schede.<br><br>
+  Strumento personale di studio e consultazione: <strong>non sostituisce il giudizio clinico, l'anestesista né le schede tecniche integrali</strong>. Calcola la clearance di Cockcroft-Gault e le dosi per kg dell'esmololo; le altre dosi sono fisse. Nel bambino non dà dosi: per la cardiologia del bambino il riferimento del progetto è Distillati-cardio-pediatria. Non salva i dati e non li invia in rete.
+</div>
+</div>
+<script>
+(function () {
+  "use strict";
+
+  /* ═══ DATI ═══════════════════════════════════════════════════════════════
+     2023 ESC Guidelines for the management of cardiomyopathies.
+     Rec. Table 33, p. 3585 — monitoraggio ECG perioperatorio in ogni
+       cardiomiopatia I C; scompenso sospetto o noto e chirurgia a rischio
+       intermedio o alto: rivalutare la funzione del VS con l'eco (nella HCM
+       anche l'ostruzione) e NT-proBNP/BNP, se non fatti di recente, I B;
+       genotipo ad alto rischio, fattori di complicanze aritmiche o di
+       scompenso, o LVOTO severa: all'unita' cardiomiopatie prima della
+       chirurgia elettiva I C; sotto i 65 anni con un parente di primo grado
+       con cardiomiopatia: ECG ed eco prima della chirurgia, I C.
+     p. 3585, testo — piu' scompenso e aritmie perioperatorie; dopo
+       l'intervento i liquidi tornano in circolo (ipervolemia, congestione):
+       bilancio idrico; HCM ostruttiva: vigilanza, evitare cio' che aumenta
+       l'ostruzione, farmaci e liquidi pronti (Tab. S7); i parenti di primo
+       grado di una cardiomiopatia genetica si valutano con ECG ed eco a
+       qualunque eta'; nessun dato sul rischio chirurgico dei parenti senza
+       fenotipo; bambini con HCM in anestesia generale, in un centro
+       specialistico multidisciplinare: morbilita' e mortalita' molto basse.
+     Supplementary data, Tab. S7, p. 16 (letta sull'immagine della pagina) —
+       obiettivi: precarico normale-alto; controllo del postcarico; ritmo
+       sinusale e sincronia AV a frequenza bassa (60-65/min); i farmaci per
+       l'ostruzione restano durante l'intervento. Da evitare: diuretici e
+       inotropi. Ipotensione: correggere il precarico (liquidi,
+       Trendelenburg), poi farmaci che alzano le resistenze senza aumentare
+       ostruzione, contrattilita' e frequenza, come fenilefrina o vasopressina.
+       Ostruzione: betabloccanti e.v. a breve durata, esmololo, metoprololo o
+       labetalolo. FA rapida: frequenza con betabloccanti o calcioantagonisti,
+       cardioversione elettrica se instabile. Adattata da Sahoo, Dhillon,
+       Hensley. Nessuna dose.
+     Rec. Table 16, p. 3549 — ostruzione cercata con l'eco a riposo e con
+       Valsalva, seduti e semisupini, poi in piedi: I B.
+     Rec. Table 18, p. 3553 — con ostruzione a riposo o provocabile evitare,
+       se possibile, digossina e vasodilatatori arteriosi e venosi, nitrati e
+       inibitori delle fosfodiesterasi compresi: IIa C. Testo p. 3553:
+       evitare disidratazione ed eccesso di alcol.
+     Rec. Table 19, p. 3554 — ostruzione severa provocabile con ipotensione ed
+       edema polmonare acuto che non risponde ai liquidi: betabloccante orale
+       o e.v. e vasocostrittori, IIa C; verapamil o diltiazem nella HCM
+       ostruttiva (I B).
+     Rec. Table 11, p. 3543 — FA o flutter nella HCM: anticoagulante orale a
+       tutti, salvo controindicazioni, I B.
+     p. 3584 — gravidanza nella HCM: ipovolemia mal tollerata; cesareo da
+       considerare con ostruzione severa; epidurale e spinale con cautela,
+       soprattutto con ostruzione severa; niente spinale in dose singola.
+     A CONFRONTO, AHA/ACC 2024 HCM (riquadri delle sezioni 10 e 19 del
+       distillato): p. e1271 — ipotensione acuta che non risponde ai liquidi:
+       fenilefrina e.v. (o altro vasocostrittore senza effetto inotropo), da
+       sola o con un betabloccante, 1 C-LD; sospendere vasodilatatori o
+       digossina 2b C-EO; diuretici orali a basse dosi solo con sovraccarico
+       2b C-EO. p. e1286 — in gravidanza anestesia generale o epidurale
+       ragionevoli, evitando l'ipotensione, 2a C-LD.
+     DOSI: la linea guida non ne da'. Prontuario del capitolo, gruppi 2 e 11,
+     dalle schede tecniche AIFA:
+       Fenilefrina Aguettant 50 microgrammi/mL, siringa da 10 mL (4.1: solo
+         ipotensione in anestesia spinale, epidurale o generale; 4.2: bolo
+         50-100 microgrammi, ripetibile, mai oltre 100 per bolo; infusione da
+         25-50 microgrammi/min, efficace 25-100, sulla sistolica; rene: «dosi
+         piu' basse possono essere necessarie», senza soglia; bambini: nessun
+         dato; 4.4 scompenso grave; 4.5 anestetici volatili alogenati
+         sconsigliati; ossitocici; 5.2 effetto 20 min dopo il bolo, escrezione
+         renale).
+       Empressin 20 UI/mL (4.1: solo shock settico refrattario alle
+         catecolamine, oltre i 18 anni; 4.2: 0,01 UI/min, aumentabile ogni
+         15-20 min fino a 0,03; oltre, solo in emergenza; 0,75-2,25 mL/h;
+         bambini sconsigliata; 4.4 mai in bolo nello shock refrattario; 6.6
+         2 mL + 48 mL = 0,8 UI/mL; 5.2 rene non studiato).
+       Brevibloc 10 mg/mL ed Esmololo Hikma 10 mg/mL (4.1 tachiaritmie
+         sopraventricolari, tachicardia e ipertensione perioperatorie; 4.2,
+         «Tachicardia peri-operatoria ed ipertensione» — IN TESTA nello
+         strumento (decisione del medico, 09/10/2026): intra-operatorio,
+         durante l'anestesia quando serve un controllo immediato, bolo di 80 mg
+         in 15-30 s, poi 150 microgrammi/kg/min, regolabile fino a 300; al
+         risveglio dall'anestesia 500 per 4 min, poi 300; post-operatorio con
+         titolazione, carico 500 per 1 min prima di ogni gradino, gradini di
+         4 min a 50, 100, 150, 200, 250, 300; per la pressione possono servire
+         250-300, oltre 300 sicurezza non studiata. 4.2, tachiaritmie — SOTTO,
+         per il dopo e fuori dall'anestesia (lo schema del prontuario):
+         carico 500 microgrammi/kg/min per 1 min, poi 50 per 4 min; gradini
+         100, 150, 200; efficace 50-200, anche 25; oltre 200 poco effetto in
+         piu'; Tab. 1 fino a 120 kg, colonne 25, 50, 100, 150, 200 e 300 (250 non
+         c'e': conto dello strumento); rene: cautela, metabolita acido renale,
+         emivita x10 nella malattia renale terminale; 4.4 iperkaliemia in
+         emodialisi; 4.3 grave ipotensione, scompenso, shock, entro 48 h dal
+         verapamil e.v.; 4.5 disopiramide e amiodarone potenziano; 4.6 non
+         raccomandato in gravidanza; sotto i 18 anni nessuna posologia).
+       Seloken 1 mg/mL e.v. (4.1 aritmie, infarto; 4.2 fino a 5 mg e.v. a 1-2
+         mg/min, ripetibile ogni 5 min, oltre 15 mg di rado serve; rene:
+         nessun aggiustamento, ma «insufficienza renale grave» fra le
+         controindicazioni, senza soglia; 4.3 ipotensione, scompenso instabile,
+         shock cardiogeno, BAV II-III, non con verapamil o diltiazem e.v.;
+         bambini: esperienza limitata).
+     Rene: Cockcroft-Gault sul peso reale, che decide; con BMI >=30 accanto
+     quella sul peso aggiustato (Devine + 0,4 x eccesso). Nessuna delle quattro
+     schede ha una soglia di clearance: fra le due stime non passa nessuna
+     soglia che cambi una dose. In dialisi il metoprololo non si propone (la
+     lettura piu' prudente della 4.3, come nel Tool FC FA). */
+  var DOSI = {
+    fenil: { boloMin:50, boloMax:100, conc:50, iniMin:25, iniMax:50, effMin:25, effMax:100 },   // Fenilefrina Aguettant 4.2; 50 microgrammi/mL
+    vaso:  { min:0.01, max:0.03, conc:0.8, mlhMin:0.75, mlhMax:2.25 },                          // Empressin 4.2 e 6.6
+    esmo:  { carico:500, gradini:[50, 100, 150, 200], minimo:25, conc:10, tab1Max:120,         // Brevibloc 4.2 e Tab. 1; 1 mL = 10 mg
+             tab1:[25, 50, 100, 150, 200, 300],                                                 // le colonne della Tab. 1
+             intra:{ boloMg:80, boloSecMin:15, boloSecMax:30, inf:150, infMax:300 },           // 4.2, intra-operatorio
+             risveglio:{ carico:500, min:4, inf:300 },                                          // 4.2, al risveglio
+             postop:{ carico:500, gradini:[50, 100, 150, 200, 250, 300], min:4 },               // 4.2, post-operatorio con titolazione
+             pa:[250, 300], studiato:300 },                                                     // 4.2, dosi massime raccomandate
+    meto:  { bolo:5, velMin:1, velMax:2, interv:5, utile:15 }                                    // Seloken 1 mg/mL, 4.2
+  };
+  var SOGLIE = { bmiAgg:30, umol:88.4, adulto:18, eta65:65 };   // BMI: decisione del medico 03/10/2026; 88,4: conversione; 65: Rec. T33 p. 3585
+  var DOM = { eta:[0, 120], peso:[25, 250], alt:[120, 220] };   // limiti di plausibilita' dello strumento
+
+  /* ═══ FUNZIONI PURE ═══════════════════════════════════════════════════ */
+  function inScala(v, k) { return v !== null && v !== undefined && !isNaN(v) && v >= DOM[k][0] && v <= DOM[k][1]; }
+  function creatMg(s) { return s.uc === "umol" ? s.creat / SOGLIE.umol : s.creat; }
+  function adulto(s) { return s.eta !== null && inScala(s.eta, "eta") && s.eta >= SOGLIE.adulto; }
+  function scalaCreat(s) {
+    if (s.creat === null) return "";
+    if (s.uc !== "umol" && (s.creat > 20 || s.creat < 0.1)) return "Creatinina " + String(s.creat).replace(".", ",") + " mg/dL: fuori scala. È in µmol/L? Cambia l'unità.";
+    if (s.uc === "umol" && (s.creat < 20 || s.creat > 2000)) return "Creatinina " + String(s.creat).replace(".", ",") + " µmol/L: fuori scala. È in mg/dL? Cambia l'unità.";
+    return "";
+  }
+  // Cockcroft-Gault sul peso REALE, che decide; con BMI >=30 accanto quella sul peso aggiustato
+  function clearance(s) {
+    var o = { clcr:null, agg:null, bmi:null, pesoAgg:null, manca:[], scala:"" };
+    if (inScala(s.peso, "peso") && inScala(s.alt, "alt")) o.bmi = s.peso / Math.pow(s.alt / 100, 2);
+    if (s.eta !== null && !inScala(s.eta, "eta")) { o.scala = "Età " + String(s.eta).replace(".", ",") + " anni: fuori scala (0–120). Il rene non si stima."; return o; }
+    if (s.eta !== null && !adulto(s)) { o.scala = "Sotto i 18 anni la Cockcroft-Gault non vale: è una formula dell'adulto. Il rene non si stima."; return o; }
+    o.scala = scalaCreat(s);
+    if (s.peso !== null && !inScala(s.peso, "peso")) o.scala = "Peso " + String(s.peso).replace(".", ",") + " kg: fuori scala (25–250).";
+    if (s.eta === null) o.manca.push("età");
+    if (!s.sesso) o.manca.push("sesso");
+    if (s.peso === null) o.manca.push("peso");
+    if (s.creat === null) o.manca.push("creatinina");
+    if (o.manca.length || o.scala) return o;
+    var f = s.sesso === "f" ? 0.85 : 1, mg = creatMg(s);
+    o.clcr = ((140 - s.eta) * s.peso * f) / (72 * mg);
+    if (o.bmi !== null && o.bmi >= SOGLIE.bmiAgg) {
+      var ibw = (s.sesso === "f" ? 45.5 : 50) + 0.9 * (s.alt - 152.4);
+      if (ibw > 0 && s.peso > ibw) { o.pesoAgg = ibw + 0.4 * (s.peso - ibw); o.agg = ((140 - s.eta) * o.pesoAgg * f) / (72 * mg); }
+    }
+    return o;
+  }
+  // le soglie di clearance delle quattro schede: nessuna. Restituisce le soglie
+  // scavalcate fra la stima sul peso reale e quella sul peso aggiustato.
+  var SOGLIE_CG = [];
+  function scavalca(a, b) {
+    var o = [], q;
+    if (a === null || b === null) return o;
+    for (q = 0; q < SOGLIE_CG.length; q++) if ((a < SOGLIE_CG[q]) !== (b < SOGLIE_CG[q])) o.push(SOGLIE_CG[q]);
+    return o;
+  }
+  // esmololo per kg di peso reale: Brevibloc 4.2 e Tab. 1 (10 mg/mL);
+  // mg/h = 0,06 x microgrammi/kg/min x kg; mL/h = mg/h / 10
+  function esmolo(peso) {
+    if (!inScala(peso, "peso")) return null;
+    var e = DOSI.esmo, o = { caricoMg:e.carico * peso / 1000, caricoMl:e.carico * peso / 1000 / e.conc, gradini:[], oltreTab:peso > e.tab1Max }, i;
+    function vel(r) { return { r:r, mgh:0.06 * r * peso, mlh:0.06 * r * peso / e.conc, tab1:e.tab1.indexOf(r) >= 0 }; }
+    // schema a gradini delle tachiaritmie (quello del prontuario)
+    for (i = 0; i < e.gradini.length; i++) o.gradini.push(vel(e.gradini[i]));
+    o.minimo = vel(e.minimo);
+    // «Tachicardia peri-operatoria ed ipertensione» (4.2): intra-operatorio, risveglio, post-operatorio
+    o.intra = { inf:vel(e.intra.inf), infMax:vel(e.intra.infMax) };
+    o.risveglio = { mg:e.risveglio.carico * peso * e.risveglio.min / 1000, vel:vel(e.risveglio.carico), poi:vel(e.risveglio.inf) };
+    o.risveglio.ml = o.risveglio.mg / e.conc;
+    o.postop = [];
+    for (i = 0; i < e.postop.gradini.length; i++) o.postop.push(vel(e.postop.gradini[i]));
+    return o;
+  }
+  function percorso(s) {
+    if (!s.chi) return { tipo:null, perche:"serve dire chi va in sala (passo 1)" };
+    if (s.chi === "parente") return { tipo:"parente" };
+    if (!s.ostr) return { tipo:null, perche:"serve sapere se c'è un'ostruzione del tratto di efflusso (passo 1)" };
+    if (s.ostr === "no") return { tipo:"nonostr" };
+    return { tipo:s.ostr === "si" ? "ostr" : "nv" };
+  }
+  // Rec. Table 33, p. 3585: le quattro righe, con lo stato per questo paziente
+  function righe33(s) {
+    var r = [];
+    r.push({ c:"I", l:"C", st:"att", t:"Monitoraggio ECG perioperatorio, in ogni cardiomiopatia." });
+    var hf;
+    if (s.scomp === "si" && s.rischio === "alto") hf = s.recenti === "no" ? { st:"att", x:"da fare" } : (s.recenti === "si" ? { st:"ok", x:"fatti di recente: la riga è soddisfatta" } : { st:"manca", x:"manca se eco e peptidi sono recenti" });
+    else if (s.scomp === "no" || s.rischio === "basso") hf = { st:"spenta", x:"non si applica: " + (s.scomp === "no" ? "niente scompenso" : "intervento a basso rischio") };
+    else hf = { st:"manca", x:"servono scompenso e rischio dell'intervento" };
+    r.push({ c:"I", l:"B", st:hf.st, x:hf.x, t:"Scompenso sospetto o noto e intervento a rischio intermedio o alto: eco per la funzione del VS e l'ostruzione, e NT-proBNP o BNP, se non fatti di recente." });
+    var ar;
+    if (s.altoRischio && s.elett === "si") ar = { st:"att", x:"prima dell'intervento" };
+    else if (s.altoRischio && s.elett === "no") ar = { st:"spenta", x:"in urgenza la riga non si applica: vale per la chirurgia elettiva" };
+    else if (s.altoRischio) ar = { st:"manca", x:"manca se l'intervento è elettivo" };
+    else ar = { st:"spenta", x:"non si applica: nessun fattore segnato" };
+    r.push({ c:"I", l:"C", st:ar.st, x:ar.x, t:"Genotipo ad alto rischio, fattori di complicanze aritmiche o di scompenso, o ostruzione severa: indagini specialistiche in un'unità cardiomiopatie prima della chirurgia elettiva." });
+    return r;
+  }
+
+  /* ═══ STATO E DISEGNO ═════════════════════════════════════════════════ */
+  function el(id) { return document.getElementById(id); }
+  function ckv(id) { var e = el(id); return !!(e && e.checked); }
+  function num(id) { var v = el(id).value; if (v === "") return null; var n = parseFloat(String(v).replace(",", ".")); return isNaN(n) ? null : n; }
+  function radio(n) { var e = document.querySelector('input[name="' + n + '"]:checked'); return e ? e.value : ""; }
+  function pgs(p) { return ' <span class="pg">' + p + "</span>"; }
+  function corPill(c, l) { var k = { "I":"c1", "IIa":"c2a", "IIb":"c2b", "III":"c3", "1":"c1", "2a":"c2a", "2b":"c2b", "3: Harm":"c3" }[c]; return '<span class="cor ' + k + '">' + c + "</span>" + (l ? ' <span class="cor ' + k + '" style="opacity:.85">' + l + "</span>" : ""); }
+  function nota(g, t) { return '<div class="nota ' + (g || "") + '">' + t + "</div>"; }
+  function chip(k, t) { return '<span class="cat ' + k + '">' + t + "</span>"; }
+  function passo(att, ico, t) { return '<div class="passo' + (att ? " att" : "") + '"><span class="ico">' + ico + '</span><span class="tx">' + t + "</span></div>"; }
+  function nf(x, d) { d = d === undefined ? 1 : d; return x.toFixed(d).replace(".", ","); }
+  function nk(x) { var r = Math.round(x * 10) / 10; return (r % 1 === 0 ? String(r) : r.toFixed(1)).replace(".", ","); }
+  function rcp(x) { return ' <span class="prov prov-rcp">SCHEDA TECNICA</span>' + (x ? ' <span class="pg">' + x + "</span>" : ""); }
+  function sint() { return ' <span class="prov prov-sintesi">SINTESI</span>'; }
+  function dv(x) { return ' <span class="dv">DA VERIFICARE</span> ' + x; }
+  var T7 = "ESC 2023, Suppl., Tab. S7, p. 16", R33 = "ESC 2023, Rec. Table 33, p. 3585", P85 = "ESC 2023, p. 3585", R16 = "ESC 2023, Rec. Table 16, p. 3549",
+      R18 = "ESC 2023, Rec. Table 18, p. 3553", P53 = "ESC 2023, p. 3553", R19 = "ESC 2023, Rec. Table 19, p. 3554", R11 = "ESC 2023, Rec. Table 11, p. 3543",
+      P84 = "ESC 2023, p. 3584", A71 = "AHA/ACC 2024, p. e1271", A86 = "AHA/ACC 2024, p. e1286";
+
+  function S() {
+    return { chi:radio("chi"), ostr:radio("ostr"), eta:num("eta"), grav:ckv("grav"),
+             scomp:radio("scomp"), rischio:radio("rischio"), recenti:radio("recenti"), elett:radio("elett"), altoRischio:ckv("altoRischio"),
+             t_bb:ckv("t_bb"), t_cca:ckv("t_cca"), t_diso:ckv("t_diso"), t_mio:ckv("t_mio"),
+             ev_ipo:ckv("ev_ipo"), ev_ostr:ckv("ev_ostr"), ev_fa:ckv("ev_fa"), fa:radio("fa"),
+             sesso:radio("sesso"), peso:num("peso"), alt:num("alt"), creat:num("creat"), uc:radio("uc") || "mg", dialisi:ckv("dialisi") };
+  }
+
+  function htmlChi(s, p) {
+    if (!p.tipo) return '<div class="esito" style="margin-top:8px">' + chip("kx", "—") + '<span class="muted">' + p.perche + "</span></div>";
+    if (p.tipo === "parente") {
+      if (s.eta === null) return nota("info", "Per la riga dei parenti serve l'età.");
+      if (!inScala(s.eta, "eta")) return nota("stop", "Età fuori scala (0–120 anni).");
+      var h = s.eta < SOGLIE.eta65
+        ? passo(true, "→", "Sotto i 65 anni, con un parente di primo grado affetto da cardiomiopatia: <b>ECG ed ecocardiogramma prima dell'intervento</b>, con o senza sintomi " + corPill("I", "C") + pgs(R33) + ".")
+        : passo(false, "·", "Dai 65 anni la riga della Rec. Table 33 non si applica" + pgs(R33) + "; il testo però chiede ECG ed eco ai parenti di primo grado di una cardiomiopatia genetica a qualunque età" + pgs(P85) + ": vedi «Incoerenze».");
+      h += passo(false, "·", "Sul rischio chirurgico dei parenti senza fenotipo non ci sono dati specifici, ma possono avere una malattia ancora subclinica" + pgs(P85) + ". Se l'eco mostra una HCM ostruttiva, lo strumento si riprende dal passo 1 come «paziente con HCM».");
+      return '<div style="margin-top:8px">' + h + "</div>";
+    }
+    if (p.tipo === "nonostr") return nota("ok", "<b>Senza ostruzione la Tab. S7 non si applica</b>: è scritta per la HCM con ostruzione del tratto di efflusso" + pgs(T7) + ". Restano le righe della Rec. Table 33 al passo 2, e dopo l'intervento il bilancio dei liquidi, perché quelli dati in sala tornano in circolo" + pgs(P85) + ".");
+    if (p.tipo === "nv") return nota("", "<b>Ostruzione non valutata.</b> Nella HCM si cerca con l'eco a riposo e con Valsalva, seduti e semisupini, poi in piedi se non compare " + corPill("I", "B") + pgs(R16) + "; prima di un intervento a rischio intermedio o alto con scompenso è la riga I B del passo 2. Finché non è esclusa, lo strumento mostra le precauzioni della Tab. S7: è la lettura prudente" + sint() + ".");
+    return "";
+  }
+
+  function htmlPrima(s) {
+    var r = righe33(s), h = "", i;
+    for (i = 0; i < r.length; i++) {
+      var k = { att:"k1", ok:"k0", spenta:"kx", manca:"kx" }[r[i].st], et = { att:"si applica", ok:"fatto", spenta:"non si applica", manca:"—" }[r[i].st];
+      h += passo(r[i].st === "att", "", corPill(r[i].c, r[i].l) + " " + r[i].t + pgs(R33) + " " + chip(k, et) + (r[i].x && r[i].st !== "att" ? ' <span class="muted">' + r[i].x + "</span>" : ""));
+    }
+    var t = [];
+    if (s.t_bb) t.push("il betabloccante");
+    if (s.t_cca) t.push("verapamil o diltiazem");
+    if (s.t_diso) t.push("la disopiramide");
+    if (s.t_mio) t.push("l'inibitore della miosina");
+    h += passo(t.length > 0, "→", (t.length ? "<b>" + t.join(", ") + "</b>: " : "I farmaci per l'ostruzione, se ci sono, ") + "restano durante l'intervento" + pgs(T7) + ".");
+    if (s.t_mio) h += nota("info", "<b>Inibitore della miosina.</b> Con una malattia intercorrente grave — un'infezione grave, una FA o un'altra tachiaritmia non controllata — le schede chiedono di valutare la FEVS e di non aumentare la dose finché non si risolve" + rcp("Camzyos 4.2; Myqorzo 4.2") + ". La titolazione e il resto stanno nel Tool Ostruzione HCM.");
+    return h;
+  }
+
+  function htmlSala(s) {
+    var h = "<h3>Obiettivi</h3>";
+    h += passo(true, "1", "<b>Precarico normale-alto</b>" + pgs(T7) + ".");
+    h += passo(true, "2", "<b>Postcarico controllato</b>" + pgs(T7) + ": nella stessa tabella l'ipotensione si tratta alzando le resistenze, e i vasodilatatori si evitano" + pgs(R18) + " — lo strumento lo legge come «non lasciarlo cadere»" + sint() + ".");
+    h += passo(true, "3", "<b>Ritmo sinusale e sincronia AV a frequenza bassa, 60–65/min</b>" + pgs(T7) + ".");
+    h += passo(true, "4", "<b>I farmaci per l'ostruzione restano</b> durante l'intervento" + pgs(T7) + ". Monitoraggio ECG perioperatorio " + corPill("I", "C") + pgs(R33) + "; vigilanza in sala, farmaci e liquidi pronti" + pgs(P85) + ".");
+    h += '<h3 class="sep">Da evitare</h3>';
+    h += passo(false, "✕", "<b>Diuretici e inotropi</b>" + pgs(T7) + ".");
+    h += passo(false, "✕", "<b>Vasodilatatori arteriosi e venosi</b>, nitrati e inibitori delle fosfodiesterasi compresi, e la <b>digossina</b>, se si può " + corPill("IIa", "C") + pgs(R18) + ". La <b>disidratazione</b>" + pgs(P53) + ".");
+    h += '<h3 class="sep">Dopo l\'intervento</h3>';
+    h += passo(false, "↻", "I liquidi dati in sala tornano in circolo: ipervolemia e congestione polmonare. Il <b>bilancio dei liquidi</b> è essenziale" + pgs(P85) + ".");
+    if (s.grav) h += nota("", "<b>Gravidanza e parto.</b> L'ipovolemia è mal tollerata; il cesareo si considera con un'ostruzione severa; epidurale e spinale <b>con cautela</b>, soprattutto con ostruzione severa, per l'ipovolemia, e <b>niente spinale in dose singola</b>" + pgs(P84) + ". La AHA/ACC 2024 è più larga: vedi il confronto.");
+    if (s.eta !== null && inScala(s.eta, "eta") && s.eta < SOGLIE.adulto) h += nota("info", "<b>Età pediatrica.</b> Nei bambini con HCM in anestesia generale, in un centro specialistico con un gruppo multidisciplinare, morbilità e mortalità perioperatorie sono molto basse" + pgs(P85) + ". Le dosi delle schede sono dell'adulto: per il bambino il riferimento del progetto è Distillati-cardio-pediatria.");
+    return h;
+  }
+
+  function htmlEventi(s, cl) {
+    var h = "", meto = !s.dialisi;
+    if (!s.ev_ipo && !s.ev_ostr && !s.ev_fa) return '<div class="esito">' + chip("kx", "—") + '<span class="muted">segna che cosa compare: le dosi restano comunque al passo 6</span></div>';
+    if (s.ev_ipo) {
+      h += "<h3>Ipotensione</h3>";
+      h += passo(true, "1", "<b>Prima il precarico</b>: liquidi, e posizione di Trendelenburg per il ritorno venoso" + pgs(T7) + ".");
+      h += passo(true, "2", "<b>Poi un vasocostrittore</b> che alzi le resistenze senza aumentare ostruzione, contrattilità e frequenza: <b>fenilefrina</b> o <b>vasopressina</b>" + pgs(T7) + " — dosi al passo 6.");
+      h += passo(false, "✕", "<b>Niente inotropi né diuretici</b>" + pgs(T7) + ".");
+      h += passo(false, "·", "Se è un'ostruzione severa provocabile con ipotensione ed edema polmonare acuto che non risponde ai liquidi: betabloccante orale o e.v. e vasocostrittori " + corPill("IIa", "C") + pgs(R19) + ".");
+    }
+    if (s.ev_ostr) {
+      h += "<h3" + (s.ev_ipo ? ' class="sep"' : "") + ">Ostruzione che compare o peggiora</h3>";
+      h += passo(true, "1", "<b>Betabloccante e.v. a breve durata</b>: esmololo, metoprololo o labetalolo" + pgs(T7) + " — dosi di esmololo" + (meto ? " e metoprololo" : "") + " al passo 6; del labetalolo lo strumento non dà la dose." + (!meto ? " In dialisi il metoprololo non si propone (passo 6)." : ""));
+      h += passo(false, "·", "Intanto valgono gli obiettivi del passo 3: precarico pieno, niente inotropi né vasodilatatori" + pgs(T7 + "; " + R18) + ".");
+      if (s.ev_ipo) h += nota("stop", "<b>Con l'ipotensione</b> le schede controindicano i betabloccanti e.v.: esmololo con grave ipotensione o scompenso, metoprololo con ipotensione o scompenso instabile" + rcp("Brevibloc 4.3; Seloken 4.3") + ". La riga IIa C della Rec. Table 19 li usa proprio lì" + pgs(R19) + ": vedi «Contrasti».");
+      if (s.t_cca) h += nota("stop", "<b>In terapia con verapamil o diltiazem</b>: esmololo controindicato con verapamil o diltiazem e.v. in corso o entro 48 h dal verapamil e.v.; metoprololo mai insieme a verapamil o diltiazem e.v." + rcp("Brevibloc 4.3; Seloken 4.3") + ". Per la terapia orale le schede segnalano più effetto inotropo e cronotropo negativo" + rcp("Seloken 4.5") + ".");
+      if (s.t_diso) h += nota("", "<b>In terapia con disopiramide</b>: l'esmololo ne potenzia l'effetto sulla conduzione e sull'inotropismo" + rcp("Brevibloc 4.5") + ".");
+    }
+    if (s.ev_fa) {
+      h += "<h3" + (s.ev_ipo || s.ev_ostr ? ' class="sep"' : "") + ">FA ad alta frequenza</h3>";
+      if (!s.fa) h += '<div class="esito">' + chip("kx", "—") + '<span class="muted">serve sapere se l\'emodinamica è stabile o instabile</span></div>';
+      if (s.fa === "instabile") h += passo(true, "1", "<b>Cardioversione elettrica</b>: l'emodinamica è instabile" + pgs(T7) + ".");
+      if (s.fa === "stabile") h += passo(true, "1", "<b>Controllo della frequenza</b> con un betabloccante o un calcioantagonista" + pgs(T7) + ". La tabella non dice quali calcioantagonisti: nella HCM ostruttiva la 2023 usa verapamil e diltiazem" + pgs(R19) + ", e i vasodilatatori arteriosi si evitano" + pgs(R18) + ". Il <b>verapamil con cautela</b> nell'ostruzione severa (≥100 mmHg) o con pressione polmonare alta: può dare edema polmonare" + pgs("ESC 2023, p. 3553") + "; per la AHA è potenzialmente dannoso con dispnea a riposo, ipotensione o gradiente a riposo molto alto (oltre 100 mmHg) " + corPill("3: Harm", "C-LD") + pgs(A71) + ". Le dosi del controllo della frequenza, con il rene, le dà il <b>Tool FC FA</b>.");
+      h += passo(false, "·", "L'obiettivo resta il ritmo sinusale con la sincronia AV a 60–65/min" + pgs(T7) + ". <b>Niente digossina</b> con l'ostruzione " + corPill("IIa", "C") + pgs(R18) + ". Betabloccante e verapamil o diltiazem <b>e.v.</b> insieme: controindicato" + rcp("Seloken 4.3; Brevibloc 4.3") + ".");
+      h += passo(false, "·", "Nella HCM con FA o flutter l'anticoagulante orale va a tutti, qualunque sia il punteggio, salvo controindicazioni " + corPill("I", "B") + pgs(R11) + ": la scelta e la dose le fa il <b>Tool OAC FA</b>.");
+      if (s.t_mio) h += nota("info", "<b>Con l'inibitore della miosina</b> una FA non controllata è una delle condizioni in cui le schede chiedono la FEVS e niente aumenti di dose" + rcp("Camzyos 4.2; Myqorzo 4.2") + ".");
+    }
+    return h;
+  }
+
+  function htmlRene(s, cl) {
+    var h = "", sc;
+    if (s.eta !== null && inScala(s.eta, "eta") && !adulto(s)) return nota("info", "<b>Sotto i 18 anni il rene non si stima</b>: la Cockcroft-Gault è una formula dell'adulto, e nessuna delle quattro schede dà una dose pediatrica (passo 6).");
+    if (cl.scala) h += nota("stop", cl.scala);
+    if (s.dialisi) h += '<div class="esito">' + chip("k4", "emodialisi") + '<span class="muted">la Cockcroft-Gault non vale: valgono le regole della dialisi delle schede, al passo 6</span></div>';
+    else if (cl.clcr !== null) {
+      h += '<div class="esito"><span class="big">Clearance ' + nf(cl.clcr, 0) + " mL/min</span>" + chip("k1", "Cockcroft-Gault, peso reale " + nk(s.peso) + " kg") + "</div>";
+      if (cl.agg !== null) {
+        h += '<div class="esito">' + chip("kx", "sul peso aggiustato " + nf(cl.agg, 0) + " mL/min") + '<span class="muted">peso aggiustato ' + nf(cl.pesoAgg, 0) + " kg, BMI " + nf(cl.bmi) + ": si mostra, non decide</span></div>";
+        sc = scavalca(cl.clcr, cl.agg);
+        h += sc.length ? nota("", "<b>Tocca questo caso.</b> Fra le due stime passa la soglia di " + sc.join(", ") + " mL/min: decide il peso reale.") :
+          nota("spenta", "Fra le due stime <b>non passa nessuna soglia</b>: nessuna delle quattro schede ne ha una, e le dosi non cambiano. Le dosi per kg dell'esmololo restano sul peso reale.");
+      }
+    } else if (!cl.scala) h += '<div class="esito">' + chip("kx", "clearance —") + '<span class="muted">mancano: ' + cl.manca.join(", ") + "</span></div>";
+    if (s.creat !== null && !cl.scala) h += '<div class="muted" style="font-size:12px">Creatinina ' + nf(creatMg(s), 2) + " mg/dL = " + nf(s.uc === "umol" ? s.creat : s.creat * SOGLIE.umol, 0) + " µmol/L</div>";
+    h += nota("info", "<b>Il rene, farmaco per farmaco.</b> Nessuna delle quattro schede fissa una soglia di clearance. Fenilefrina: dosi forse più basse con funzione ridotta, senza dire quanto né da quando. Vasopressina: non studiata, nessun aggiustamento. Esmololo: cautela, e nella malattia renale terminale il metabolita dura circa 10 volte di più. Metoprololo: nessun aggiustamento, ma l'insufficienza renale «grave» lo controindica, senza soglia. Il dettaglio è al passo 6.");
+    return h;
+  }
+
+  function card(att, no, nome, prod, righe) {
+    var h = '<div class="dose' + (att ? " att" : "") + (no ? " no" : "") + '"><div class="dn">' + nome + '</div><div class="dp">' + prod + "</div>", i;
+    for (i = 0; i < righe.length; i++) if (righe[i]) h += '<div class="dr"><span class="dl">' + righe[i][0] + '</span><span class="dx">' + righe[i][1] + "</span></div>";
+    return h + "</div>";
+  }
+
+  function htmlDosi(s, cl) {
+    var bimbo = s.eta !== null && inScala(s.eta, "eta") && s.eta < SOGLIE.adulto, h = "", d, e, i, t;
+    var etaNota = s.eta === null ? ' <span class="muted">(età non indicata: sono le dosi dell\'adulto)</span>' :
+      (!inScala(s.eta, "eta") ? ' <span class="muted">(età fuori scala: sono le dosi dell\'adulto)</span>' : "");
+    var clTxt = s.dialisi ? "in emodialisi" : (cl.clcr !== null ? "qui ClCr " + nf(cl.clcr, 0) + " mL/min" : "");
+    if (bimbo) h += nota("stop", "<b>Sotto i 18 anni nessuna dose.</b> Fenilefrina: nei bambini nessun dato; vasopressina: sconsigliata; esmololo: nessuna raccomandazione posologica; metoprololo: esperienza limitata" + rcp("4.2 delle quattro schede") + ". Per il bambino il riferimento del progetto è Distillati-cardio-pediatria.");
+
+    // fenilefrina
+    d = DOSI.fenil;
+    h += card(s.ev_ipo, bimbo, "Fenilefrina e.v.", "Fenilefrina Aguettant 50 µg/mL, siringa preriempita da 10 mL = 500 µg · uso ospedaliero", [
+      ["Per", "Ipotensione, dopo aver corretto il precarico" + pgs(T7) + "."],
+      ["Dose", bimbo ? "Nessuna: sicurezza ed efficacia nei bambini non stabilite, nessun dato" + rcp("4.2") :
+        "Bolo e.v. <b>" + d.boloMin + "–" + d.boloMax + " µg</b> = " + (d.boloMin / d.conc) + "–" + (d.boloMax / d.conc) + " mL della siringa, ripetibile fino all'effetto; <b>mai oltre " + d.boloMax + " µg per bolo</b>. Infusione: si parte da <b>" + d.iniMin + "–" + d.iniMax + " µg/min</b>, efficace fra " + d.effMin + " e " + d.effMax + " µg/min, titolata sulla sistolica" + rcp("4.2") + ". Dopo il bolo l'effetto dura circa 20 minuti" + rcp("5.2") + "." + etaNota +
+        '<br><span class="muted">A 50 µg/mL, ' + d.effMin + "–" + d.effMax + " µg/min sono " + (d.effMin * 60 / d.conc) + "–" + (d.effMax * 60 / d.conc) + " mL/h: una siringa da 500 µg dura " + (500 / d.effMax) + "–" + (500 / d.effMin) + " minuti</span>" + sint()],
+      ["Rene", "«Dosi più basse possono essere necessarie» con funzione renale ridotta, senza soglia né numero" + rcp("4.2") + "; escrezione soprattutto renale" + rcp("5.2") + "." + dv("di quanto ridurre, e da quale clearance: si titola sulla pressione.") + (clTxt ? " " + clTxt + (s.dialisi ? ": la dialisi la scheda non la nomina." : ".") : "")],
+      ["Indicazione", "Ipotensione durante anestesia spinale, epidurale o generale" + rcp("4.1") + ": <b>in sala l'uso coincide con l'indicazione</b>. Fuori dalla sala, nella riga IIa C della Rec. Table 19, sarebbe fuori indicazione."],
+      ["Attenzione", "Bradicardia riflessa, l'effetto avverso più comune" + rcp("4.8") + "; riduce la gittata e nello scompenso grave o nello shock cardiogeno può peggiorarlo" + rcp("4.4") + ". Controindicata con ipertensione grave, vasculopatia periferica grave, IMAO non selettivi, ipertiroidismo grave" + rcp("4.3") + ". <b>Sconsigliata con gli anestetici volatili alogenati</b> — desflurano, isoflurano, sevoflurano e gli altri: crisi ipertensive perioperatorie e aritmie; sconsigliata anche con glicosidi e chinidina" + rcp("4.5") + "."],
+      s.grav ? ["Gravidanza", "Si può usare secondo le indicazioni; a fine gravidanza o in travaglio possibili ipossia e bradicardia fetale; con gli ossitocici ipertensione grave e ictus nel post-partum" + rcp("4.5, 4.6") + "."] : null,
+      ["Scheda", "Laboratoire Aguettant, AIFA, reso disponibile il 31/01/2021, letta l'08/10/2026: l'unica fenilefrina iniettabile in Italia."]
+    ]);
+
+    // vasopressina
+    d = DOSI.vaso;
+    h += card(s.ev_ipo, bimbo, "Vasopressina (argipressina) e.v.", "Empressin 40 UI/2 mL (20 UI/mL), concentrato da diluire", [
+      ["Per", "Ipotensione, in alternativa alla fenilefrina" + pgs(T7) + "."],
+      ["Dose", bimbo ? "Nessuna: sconsigliata nei bambini e nei neonati" + rcp("4.2, 4.4") :
+        "Infusione e.v. continua: <b>" + nf(d.min, 2) + " UI/min</b>, aumentabile ogni 15–20 minuti fino a <b>" + nf(d.max, 2) + " UI/min</b> (0,6–1,8 UI/h); oltre " + nf(d.max, 2) + " solo come trattamento d'emergenza, per il rischio di necrosi intestinale e cutanea e di arresto cardiaco" + rcp("4.2") + ". Diluizione della scheda: 2 mL (40 UI) in 48 mL di fisiologica = " + nf(d.conc, 1) + " UI/mL → <b>" + nf(d.mlhMin, 2) + "–" + nf(d.mlhMax, 2) + " mL/h</b>" + rcp("4.2, 6.6") + ". <b>Niente bolo</b>: la scheda lo esclude nello shock refrattario" + rcp("4.4") + "; della sala non dice nulla." + etaNota],
+      ["Rene", "Insufficienza renale non studiata: nessun aggiustamento dichiarato; una quota esce immodificata con le urine, emivita sotto i 10 minuti" + rcp("5.2") + ". La scheda tace: il rene non cambia la dose." + (clTxt ? " " + clTxt + "." : "")],
+      ["Indicazione", "Solo l'ipotensione refrattaria alle catecolamine dello shock settico, oltre i 18 anni" + rcp("4.1") + ", e solo in aggiunta alle catecolamine" + rcp("4.2") + ": <b>qui è fuori indicazione</b>."],
+      ["Attenzione", "Cautela nelle malattie cardiache e vascolari — con dosi alte ischemia miocardica e intestinale —, nello scompenso e nel sovraccarico idrico; intossicazione da acqua; non intercambiabile con prodotti dosati in unità pressorie" + rcp("4.4") + "."],
+      s.grav ? ["Gravidanza", "Contrazioni uterine e meno perfusione uterina: solo se evidentemente necessaria" + rcp("4.6") + "."] : null,
+      ["Scheda", "Orpha-Devel, AIFA, reso disponibile l'08/03/2019, letta il 09/10/2026: l'unica argipressina in Italia."]
+    ]);
+
+    // esmololo — in testa lo schema intraoperatorio, sotto quello a gradini del prontuario (decisione del medico, 09/10/2026)
+    e = esmolo(s.peso);
+    d = DOSI.esmo;
+    function vv(v) { return v.r + " µg/kg/min = <b>" + nk(v.mgh) + " mg/h = " + nk(v.mlh) + " mL/h</b>"; }
+    var conKg = !bimbo && e, perKg = conKg ? " — per " + nk(s.peso) + " kg: " : "";
+    t = "<b>In sala: lo schema intraoperatorio</b>, per la tachicardia e l'ipertensione peri-operatorie" + rcp("Brevibloc 4.1") + ". Durante l'anestesia, quando serve un controllo immediato: <b>bolo di " + d.intra.boloMg + " mg in " + d.intra.boloSecMin + "–" + d.intra.boloSecMax + " secondi</b> (" + nk(d.intra.boloMg / d.conc) + " mL a 10 mg/mL: dose fissa, non per kg), poi infusione di <b>" + d.intra.inf + " µg/kg/min</b>, regolabile fino a <b>" + d.intra.infMax + " µg/kg/min</b>" + rcp("Brevibloc 4.2") + ".";
+    if (conKg) t += " Per <b>" + nk(s.peso) + " kg</b> di peso reale, a 10 mg/mL: " + vv(e.intra.inf) + "; " + vv(e.intra.infMax) + rcp("Brevibloc 4.2, Tab. 1") + "." + (e.oltreTab ? " <b>Oltre i 120 kg</b> la Tab. 1 della scheda si ferma: i conti per kg sono dello strumento" + sint() + "." : "");
+    else if (!bimbo) t += s.peso !== null ? ' <span class="muted">Peso fuori scala (25–250 kg): nessun conto per kg.</span>' : ' <span class="muted">Per i mg e i mL/h serve il peso (passo 5).</span>';
+    t += "<br><b>Al risveglio dall'anestesia</b>: " + d.risveglio.carico + " µg/kg/min per " + d.risveglio.min + " minuti, poi " + d.risveglio.inf + " µg/kg/min" + rcp("Brevibloc 4.2") +
+      (conKg ? perKg + nk(e.risveglio.vel.mlh) + " mL/h per " + d.risveglio.min + " minuti, cioè " + nk(e.risveglio.mg) + " mg = " + nk(e.risveglio.ml) + " mL" + sint() + ", poi " + nk(e.risveglio.poi.mlh) + " mL/h" : "") + ".";
+    var pl = [];
+    if (conKg) for (i = 0; i < e.postop.length; i++) pl.push(nk(e.postop[i].mlh));
+    t += "<br><b>Dopo l'intervento, se si può titolare</b>: carico di " + d.postop.carico + " µg/kg/min per 1 minuto prima di ogni gradino; gradini di " + d.postop.min + " minuti a " + d.postop.gradini.join(", ") + " µg/kg/min, fermandosi all'effetto" + rcp("Brevibloc 4.2") +
+      (conKg ? perKg + "carico " + nk(e.caricoMg) + " mg = " + nk(e.caricoMl) + " mL; gradini " + pl.join(" · ") + " mL/h (250 µg/kg/min non è nella Tab. 1: conto dello strumento" + sint() + ")" : "") +
+      ". Per la pressione possono servire " + d.pa.join("–") + " µg/kg/min; oltre " + d.studiato + " la sicurezza non è stata studiata" + rcp("Brevibloc 4.2") + ".";
+    t += "<br><br><b>Per il dopo e fuori dall'anestesia: lo schema a gradini delle tachiaritmie</b>, quello del prontuario del capitolo. Carico <b>500 µg/kg/min per 1 minuto</b>, poi <b>50 µg/kg/min per 4 minuti</b>; se non basta, nuovo carico e mantenimento a 100, poi 150, poi 200 µg/kg/min; mantenimento efficace 50–200 µg/kg/min, anche 25; oltre 200 poco effetto in più e più reazioni avverse" + rcp("Brevibloc 4.2") + ".";
+    if (conKg) {
+      t += " Per <b>" + nk(s.peso) + " kg</b>: carico <b>" + nk(e.caricoMg) + " mg = " + nk(e.caricoMl) + " mL in 1 minuto</b>; mantenimento ";
+      var g = [];
+      for (i = 0; i < e.gradini.length; i++) g.push(vv(e.gradini[i]));
+      t += g.join("; ") + "; a 25 µg/kg/min " + nk(e.minimo.mgh) + " mg/h = " + nk(e.minimo.mlh) + " mL/h" + rcp("Brevibloc 4.2, Tab. 1") + ". La scheda non dà un tetto in mg: il limite è per kg.";
+    }
+    t += etaNota;
+    h += card(s.ev_ostr, bimbo, "Esmololo e.v.", "Brevibloc 10 mg/mL (in carenza: flaconcini dal 12/08/2024, sacca dal 03/08/2026) · in commercio Esmololo cloridrato Hikma 10 mg/mL, stesso schema", [
+      ["Per", "Ostruzione che compare o peggiora: betabloccante e.v. a breve durata" + pgs(T7) + "."],
+      ["Dose", bimbo ? "Nessuna: sotto i 18 anni nessuna raccomandazione posologica" + rcp("Brevibloc 4.2") + "; Esmololo Hikma non è indicato nei bambini" + rcp("Esmololo Hikma 4.1") : t],
+      ["Rene", "Cautela, senza dose né soglia: il metabolita acido si elimina col rene, e nella malattia renale terminale la sua emivita è circa 10 volte più lunga" + rcp("4.2") + "; in emodialisi iperkaliemia potenzialmente pericolosa" + rcp("4.4") + "." + dv("la dose nella malattia renale terminale.") + (s.dialisi ? " <b>In emodialisi</b>: è il caso dell'iperkaliemia." : (clTxt ? " " + clTxt + "." : ""))],
+      ["Indicazione", "Tachicardia e ipertensione peri-operatorie — all'induzione e all'intubazione, durante l'intervento, al risveglio e dopo: è l'indicazione degli schemi in testa; tachiaritmie sopraventricolari e tachicardia sinusale non compensatoria: quella dello schema a gradini" + rcp("4.1") + ". <b>Per l'ostruzione è fuori indicazione</b>; <b>nell'ostruzione con ipotensione resta fuori indicazione</b>, e la grave ipotensione è fra le controindicazioni" + rcp("4.3") + "."],
+      ["Attenzione", "Controindicato con grave ipotensione, collasso cardiaco scompensato, shock cardiogeno, bradicardia ≤50/min, BAV di II o III grado, verapamil o diltiazem e.v. in corso o verapamil e.v. nelle 48 ore prima" + rcp("4.3") + "; al primo segno di scompenso si interrompe" + rcp("4.4") + ". Disopiramide e amiodarone ne potenziano l'effetto sulla conduzione e sull'inotropismo" + rcp("4.5") + "."],
+      s.grav ? ["Gravidanza", "Non raccomandato in gravidanza" + rcp("Brevibloc 4.6") + "."] : null,
+      ["Scheda", "Brevibloc (Baxter), AIFA, reso disponibile il 16/06/2026; Esmololo cloridrato Hikma, 02/06/2017; lette il 03/10/2026."]
+    ]);
+
+    // metoprololo
+    d = DOSI.meto;
+    var metoNo = !bimbo && s.dialisi;
+    h += card(s.ev_ostr && !metoNo, bimbo || metoNo, "Metoprololo tartrato e.v.", "Seloken 1 mg/mL, fiala da 5 mL = 5 mg · l'unico metoprololo e.v. in Italia", [
+      ["Per", "Ostruzione che compare o peggiora: betabloccante e.v. a breve durata" + pgs(T7) + "."],
+      ["Dose", bimbo ? "Nessuna: nei bambini l'esperienza è limitata" + rcp("Seloken 4.2") :
+        (metoNo ? "<b>In dialisi lo strumento non lo propone</b>: l'«insufficienza renale grave» è fra le controindicazioni, e la lettura più prudente la riconosce nella dialisi, come il Tool FC FA. " : "") +
+        "Fino a <b>" + d.bolo + " mg e.v. lentamente</b> (" + d.velMin + "–" + d.velMax + " mg/min), ripetibile ogni " + d.interv + " minuti fino all'effetto; oltre <b>" + d.utile + " mg</b> di rado serve" + rcp("Seloken 4.2") + ". Nessuna infusione continua nella scheda." + etaNota],
+      ["Rene", "Nessun aggiustamento" + rcp("4.2") + ", ma l'«insufficienza renale grave» è fra le controindicazioni, senza soglia" + rcp("4.3") + "." + dv("la soglia di «grave».") + (clTxt ? " " + clTxt + "." : "")],
+      ["Indicazione", "Aritmie, escluse le bradiaritmie, e infarto miocardico acuto" + rcp("4.1") + ": <b>per l'ostruzione è fuori indicazione</b>."],
+      ["Attenzione", "Controindicato con ipotensione, scompenso instabile (edema polmonare, ipoperfusione o ipotensione), shock cardiogeno, bradicardia sinusale rilevante, BAV di II o III grado, e insieme a verapamil o diltiazem e.v." + rcp("4.3") + "."],
+      s.grav ? ["Gravidanza", "Solo se strettamente necessario" + rcp("Seloken 4.6") + "."] : null,
+      ["Scheda", "Recordati, AIFA, reso disponibile il 28/08/2026, letta il 03/10/2026."]
+    ]);
+
+    // labetalolo: nominato, senza dose
+    h += card(false, true, "Labetalolo e.v.", "nominato dalla Tab. S7 accanto a esmololo e metoprololo", [
+      ["Dose", "Lo strumento non la dà: la Tab. S7 non dà dosi" + pgs(T7) + ", e per questo capitolo la sua scheda tecnica non è stata letta. Senza dose, nemmeno il rene."]
+    ]);
+    return h;
+  }
+
+  function disegna() {
+    var s = S(), p = percorso(s), cl = clearance(s), i;
+    var chk = document.querySelectorAll(".chk");
+    for (i = 0; i < chk.length; i++) {
+      var inp = chk[i].querySelector("input"), on = !!(inp && inp.checked);
+      if (on && (" " + chk[i].className + " ").indexOf(" on ") < 0) chk[i].className += " on";
+      if (!on) chk[i].className = chk[i].className.replace(/(^|\s)on(\s|$)/g, " ").replace(/\s+$/, "");
+    }
+    var sala = p.tipo === "ostr" || p.tipo === "nv" || p.tipo === null, prima = p.tipo !== "parente";
+    el("rigaOstr").className = s.chi === "parente" ? "riga hide" : "riga";
+    el("rigaFa").className = s.ev_fa ? "riga" : "riga hide";
+    el("stage2").className = "stage" + (prima ? "" : " hide");
+    el("card2").className = "card" + (prima ? "" : " hide");
+    var blocchi = [["stage3", "stage"], ["outSala", "card"], ["stage4", "stage"], ["card4", "card"], ["stage5", "stage"], ["card5", "card"], ["stage6", "stage"], ["outDosi", "card"]];
+    for (i = 0; i < blocchi.length; i++) el(blocchi[i][0]).className = blocchi[i][1] + (sala ? "" : " hide");
+    el("vEta").innerHTML = s.eta === null ? "—" : (!inScala(s.eta, "eta") ? "fuori scala" : (s.eta < SOGLIE.adulto ? "sotto i 18: nessuna dose" : "adulto"));
+
+    el("outChi").innerHTML = htmlChi(s, p);
+    el("outPrima").innerHTML = htmlPrima(s);
+    el("outSala").innerHTML = htmlSala(s);
+    el("outEventi").innerHTML = htmlEventi(s, cl);
+    el("outRene").innerHTML = htmlRene(s, cl);
+    el("outDosi").innerHTML = htmlDosi(s, cl);
+
+    /* confronto con la AHA/ACC 2024, nel suo sistema di classi */
+    function inc(tocca, x) { return nota(tocca ? "" : "spenta", (tocca ? "<b>Tocca questo caso.</b> " : "") + x); }
+    var hc = inc(s.ev_ipo, "<b>AHA/ACC 2024 — farmaci nell'ostruzione.</b> " + corPill("1", "C-LD") + " Ipotensione acuta che non risponde ai liquidi: fenilefrina e.v., o un altro vasocostrittore senza effetto inotropo, da sola o con un betabloccante" + pgs(A71) + ". " + corPill("2b", "C-EO") + " Sospendere i vasodilatatori (ACE-inibitori, sartani, diidropiridine) o la digossina" + pgs(A71) + ". " + corPill("2b", "C-EO") + " Diuretici orali a basse dosi, con cautela, solo con segni di sovraccarico e pressioni di riempimento alte" + pgs(A71) + ". <b>Che cosa cambia rispetto alla ESC 2023</b>: la AHA nomina la fenilefrina e la mette in classe 1, dove la ESC dice «vasocostrittori» senza molecola, IIa C" + pgs(R19) + "; vasodilatatori e digossina scendono a 2b, dove la ESC li fa evitare IIa C" + pgs(R18) + ". In sala la Tab. S7 i diuretici li fa evitare" + pgs(T7) + ".");
+    hc += inc(s.grav, "<b>AHA/ACC 2024 — gravidanza.</b> " + corPill("2a", "C-LD") + " Anestesia generale o epidurale ragionevoli, evitando l'ipotensione" + pgs(A86) + ". <b>Che cosa cambia</b>: la ESC chiede cautela con epidurale e spinale, soprattutto con ostruzione severa, e niente spinale in dose singola" + pgs(P84) + ".");
+    el("outConf").innerHTML = hc;
+
+    /* incoerenze della fonte e contrasti con le schede tecniche */
+    var os = p.tipo === "ostr" || p.tipo === "nv";
+    el("outInc").innerHTML =
+      inc(os, "<b>«Controllo del postcarico».</b> La Tab. S7 non dice in che direzione" + pgs(T7) + "; nella stessa tabella l'ipotensione si tratta alzando le resistenze, e la Rec. Table 18 fa evitare i vasodilatatori" + pgs(R18) + ". Lo strumento lo legge come «non lasciarlo cadere»" + sint() + ".") +
+      inc(os && s.ev_ipo, "<b>Fenilefrina e anestetici alogenati.</b> La scheda la indica nell'ipotensione durante l'anestesia generale, e nella stessa scheda sconsiglia l'associazione con gli anestetici volatili alogenati, per crisi ipertensive perioperatorie e aritmie" + rcp("Fenilefrina Aguettant 4.1, 4.5") + ". La Tab. S7 non ne parla" + pgs(T7) + ": la scelta è dell'anestesista.") +
+      inc(os && s.ev_ipo, "<b>Fenilefrina e scompenso.</b> La scheda avverte che nello scompenso grave l'aumento del postcarico può peggiorarlo" + rcp("4.4") + "; nell'ostruzione dinamica quell'aumento è l'effetto cercato, ma il paziente della riga IIa C della Rec. Table 19 ha anche l'edema polmonare" + pgs(R19) + ".") +
+      inc(os && s.ev_ipo && s.ev_ostr, "<b>Betabloccanti e.v. con l'ipotensione.</b> La Rec. Table 19 li usa nell'ostruzione severa con ipotensione ed edema polmonare (IIa C)" + pgs(R19) + "; le schede li controindicano con l'ipotensione (Seloken), con la grave ipotensione (Brevibloc) e con lo scompenso instabile o scompensato" + rcp("Seloken 4.3; Brevibloc 4.3") + ". Qui l'ipotensione nasce dall'ostruzione dinamica, una distinzione che le schede non fanno.") +
+      inc(os && s.ev_ostr, "<b>Esmololo: due schemi nella stessa scheda.</b> Intraoperatorio per la tachicardia e l'ipertensione peri-operatorie (bolo di 80 mg, poi 150–300 µg/kg/min) e a gradini per le tachiaritmie (carico 500 µg/kg/min, poi 50–200)" + rcp("Brevibloc 4.1–4.2") + ". Per l'ostruzione nessuno dei due è in indicazione. Il prontuario del capitolo usa lo schema a gradini; in sala lo strumento mette in testa quello intraoperatorio (decisione del medico, 09/10/2026) e tiene l'altro sotto, per il dopo e fuori dall'anestesia.") +
+      inc(os && s.ev_fa, "<b>«Calcioantagonisti» senza nome.</b> La Tab. S7 non dice quali" + pgs(T7) + "; nella HCM ostruttiva la 2023 usa verapamil e diltiazem" + pgs(R19) + ", e fa evitare i vasodilatatori arteriosi" + pgs(R18) + ".") +
+      inc(s.chi === "parente", "<b>Parenti: fino a 65 anni o a ogni età?</b> La riga della Rec. Table 33 vale sotto i 65 anni e per «una cardiomiopatia»" + pgs(R33) + "; il testo chiede ECG ed eco ai parenti di primo grado di una cardiomiopatia genetica a qualunque età" + pgs(P85) + ". La riga vale prima di un intervento; lo screening dei familiari a ogni età è un'altra cosa.") +
+      inc(os && (s.dialisi || cl.clcr !== null), "<b>Metoprololo e rene.</b> Nessun aggiustamento nell'insufficienza renale (4.2), ma l'«insufficienza renale grave» è fra le controindicazioni (4.3), senza soglia" + rcp("Seloken") + ". In dialisi lo strumento lo esclude, la lettura più prudente; sopra, la soglia resta DA VERIFICARE.");
+
+    /* limiti */
+    var lim = [];
+    lim.push("La Tab. S7 è adattata da tre lavori di anestesia (Sahoo, Dhillon, Hensley) e <b>non dà dosi</b>" + pgs(T7) + ": le dosi sono delle schede tecniche, come nel prontuario del capitolo. Tre farmaci su quattro, in questo uso, sono <b>fuori indicazione</b>; la fenilefrina in sala no.");
+    lim.push("Nessuna delle quattro schede ha una soglia di clearance: la Cockcroft-Gault sul peso reale si mostra per dire il rene, ma non cambia nessuna dose. Le dosi per kg dell'esmololo usano il peso reale; con BMI ≥30 accanto c'è la clearance sul peso aggiustato.");
+    lim.push("Il rischio «intermedio o alto» dell'intervento la 2023 non lo definisce: è quello delle linee guida sulla chirurgia non cardiaca" + pgs(R33) + ". «Ostruzione severa» non ha una soglia nella Rec. Table 33.");
+    lim.push("Il labetalolo è nominato senza dose. Le dosi del controllo della frequenza nella FA le dà il Tool FC FA, l'anticoagulante il Tool OAC FA, la terapia orale dell'ostruzione e gli inibitori della miosina il Tool Ostruzione HCM.");
+    if (s.eta !== null && inScala(s.eta, "eta") && s.eta < SOGLIE.adulto) lim.push("Sotto i 18 anni lo strumento non dà dosi né stima il rene. Per il bambino il riferimento del progetto è Distillati-cardio-pediatria.");
+    lim.push("Non sostituisce l'anestesista né le schede tecniche integrali.");
+    el("limiti").innerHTML = "<li>" + lim.join("</li><li>") + "</li>";
+
+    /* barra */
+    function bar(id, k, x) { var b = el(id); b.className = "cat " + k; b.innerHTML = x; }
+    var bo = { ostr:["k4", "sì"], nv:["k2", "non valutata"], nonostr:["k0", "no"], parente:["kx", "parente"] }[p.tipo];
+    bar("barOstr", bo ? bo[0] : "kx", bo ? bo[1] : "—");
+    var br = "—", bk = "kx";
+    if (s.eta !== null && inScala(s.eta, "eta") && s.eta < SOGLIE.adulto) br = "non si stima";
+    else if (s.dialisi) { br = "emodialisi"; bk = "k4"; }
+    else if (cl.clcr !== null) { br = nf(cl.clcr, 0) + " mL/min"; bk = "k1"; }
+    bar("barRene", bk, br);
+    var ev = [];
+    if (s.ev_ipo) ev.push("ipotensione");
+    if (s.ev_ostr) ev.push("ostruzione");
+    if (s.ev_fa) ev.push("FA");
+    bar("barEv", ev.length && sala ? "k3" : "kx", ev.length && sala ? ev.join(" · ") : "—");
+  }
+
+  document.addEventListener("input", disegna);
+  document.addEventListener("change", disegna);
+  el("azzera").addEventListener("click", function () {
+    var ins = document.querySelectorAll("input"), i;
+    for (i = 0; i < ins.length; i++) {
+      if (ins[i].type === "checkbox" || ins[i].type === "radio") ins[i].checked = false;
+      else ins[i].value = "";
+    }
+    var mg = document.querySelector('input[name="uc"][value="mg"]');
+    if (mg) mg.checked = true;
+    disegna();
+    window.scrollTo(0, 0);
+  });
+
+  window.SALA_MOTORE = { DOSI:DOSI, SOGLIE:SOGLIE, SOGLIE_CG:SOGLIE_CG, clearance:clearance, esmolo:esmolo, percorso:percorso, righe33:righe33, scavalca:scavalca };
+  disegna();
+})();
+</script>
+<script data-iphone="web">
+// Solo da un indirizzo https, cioe' dalla pagina pubblicata: aperto come file
+// il tool non cerca ne' manifest ne' service worker, che accanto al file non
+// ci sono. Un errore qui non deve fermare niente: e' un di piu'.
+(function(){
+if(location.protocol!=="https:") return;
+try{
+  var t=document.getElementsByTagName("head")[0];
+  var m=document.createElement("link"); m.rel="manifest"; m.href="manifest.webmanifest";
+  var i=document.createElement("link"); i.rel="apple-touch-icon"; i.href="icona-180.png";
+  t.appendChild(m); t.appendChild(i);
+  if("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js")["catch"](function(){});
+}catch(e){}
+})();
+</script>
+<script data-iphone="fine">document.documentElement.className+=" motore-ok";</script>
+</body>
+</html>
